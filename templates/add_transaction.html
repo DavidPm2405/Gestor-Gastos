@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Nueva Transacción{% endblock %}
+{% block content %}
+
+<div class="row justify-content-center">
+  <div class="col-md-7 col-lg-5">
+    <h4 class="fw-bold mb-4">Nueva transacción</h4>
+    <div class="card p-4">
+      <form method="POST" id="txForm">
+
+        <!-- Tipo -->
+        <div class="mb-3">
+          <label class="form-label">Tipo</label>
+          <div class="d-flex gap-2">
+            <input type="radio" class="btn-check" name="type" id="t-income"  value="income"  checked>
+            <label class="btn btn-outline-success flex-fill" for="t-income">
+              <i class="bi bi-arrow-down-circle"></i> Ingreso
+            </label>
+            <input type="radio" class="btn-check" name="type" id="t-expense" value="expense">
+            <label class="btn btn-outline-danger flex-fill"  for="t-expense">
+              <i class="bi bi-arrow-up-circle"></i> Gasto
+            </label>
+          </div>
+        </div>
+
+        <!-- Categoría (dinámica) -->
+        <div class="mb-3">
+          <label class="form-label">Categoría</label>
+          <select name="category" id="category" class="form-select" required>
+            {% for c in categories["income"] %}
+              <option>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Monto -->
+        <div class="mb-3">
+          <label class="form-label">Monto</label>
+          <div class="input-group">
+            <span class="input-group-text">$ CLP</span>
+            <input type="number" name="amount" class="form-control" step="1" min="1" required placeholder="0">
+          </div>
+        </div>
+
+        <!-- Fecha -->
+        <div class="mb-3">
+          <label class="form-label">Fecha</label>
+          <input type="date" name="date" class="form-control" value="{{ today }}" required>
+        </div>
+
+        <!-- Descripción -->
+        <div class="mb-4">
+          <label class="form-label">Descripción <span class="text-muted small">(opcional)</span></label>
+          <input type="text" name="description" class="form-control" maxlength="200" placeholder="Ej: Supermercado">
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-primary flex-fill">Guardar</button>
+          <a href="{{ url_for('transactions') }}" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const cats = {{ categories | tojson }};
+const sel  = document.getElementById('category');
+
+function updateCats(type) {
+  sel.innerHTML = cats[type].map(c => `<option>${c}</option>`).join('');
+}
+
+document.querySelectorAll('input[name="type"]').forEach(r =>
+  r.addEventListener('change', e => updateCats(e.target.value))
+);
+</script>
+{% endblock %}

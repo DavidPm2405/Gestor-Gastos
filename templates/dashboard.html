@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h4 class="mb-0 fw-bold">Dashboard</h4>
+  <!-- Selector de mes/año -->
+  <form class="d-flex gap-2" method="GET">
+    <select name="month" class="form-select form-select-sm" style="width:130px">
+      {% for m in months %}
+        <option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ calendar.month_name[m] }}</option>
+      {% endfor %}
+    </select>
+    <select name="year" class="form-select form-select-sm" style="width:90px">
+      {% for y in years %}
+        <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn btn-sm btn-outline-primary">Ver</button>
+  </form>
+</div>
+
+<!-- Tarjetas resumen -->
+<div class="row g-3 mb-4">
+  <div class="col-sm-4">
+    <div class="card stat-card balance p-3">
+      <div class="text-muted small mb-1">Balance total</div>
+      <div class="fs-4 fw-bold {% if balance >= 0 %}text-primary{% else %}text-danger{% endif %}">
+        ${{ "{:,.0f}".format(balance) }} CLP
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-4">
+    <div class="card stat-card income p-3">
+      <div class="text-muted small mb-1">Ingresos — {{ month_name }} {{ year }}</div>
+      <div class="fs-4 fw-bold text-success">${{ "{:,.0f}".format(month_income) }} CLP</div>
+    </div>
+  </div>
+  <div class="col-sm-4">
+    <div class="card stat-card expense p-3">
+      <div class="text-muted small mb-1">Gastos — {{ month_name }} {{ year }}</div>
+      <div class="fs-4 fw-bold text-danger">${{ "{:,.0f}".format(month_expense) }} CLP</div>
+    </div>
+  </div>
+</div>
+
+<!-- Gráficos -->
+<div class="row g-3 mb-4">
+  <div class="col-lg-8">
+    <div class="card p-3">
+      <h6 class="fw-semibold mb-3">Balance mensual {{ year }}</h6>
+      <canvas id="barChart" height="100"></canvas>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card p-3">
+      <h6 class="fw-semibold mb-3">Gastos por categoría — {{ month_name }}</h6>
+      {% if cat_labels %}
+        <canvas id="pieChart" height="180"></canvas>
+      {% else %}
+        <p class="text-muted text-center mt-4">Sin gastos este mes</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Últimas transacciones -->
+<div class="card p-3">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h6 class="fw-semibold mb-0">Últimas transacciones</h6>
+    <a href="{{ url_for('transactions') }}" class="btn btn-sm btn-outline-secondary">Ver todas</a>
+  </div>
+  {% if recent %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light"><tr>
+        <th>Fecha</th><th>Tipo</th><th>Categoría</th><th>Descripción</th><th class="text-end">Monto</th>
+      </tr></thead>
+      <tbody>
+        {% for t in recent %}
+        <tr>
+          <td class="text-muted small">{{ t.date }}</td>
+          <td>
+            <span class="badge badge-{{ t.type }} px-2 py-1">
+              {{ "Ingreso" if t.type == "income" else "Gasto" }}
+            </span>
+          </td>
+          <td>{{ t.category }}</td>
+          <td class="text-muted small">{{ t.description or "—" }}</td>
+          <td class="text-end fw-semibold {% if t.type == 'income' %}text-success{% else %}text-danger{% endif %}">
+            {{ "+" if t.type == "income" else "-" }}${{ "{:,.0f}".format(t.amount) }} CLP
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p class="text-muted text-center py-3">Aún no hay transacciones. <a href="{{ url_for('add_transaction') }}">Agrega una</a>.</p>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const incomeData  = {{ monthly_income | tojson }};
+const expenseData = {{ monthly_expense | tojson }};
+
+new Chart(document.getElementById('barChart'), {
+  type: 'bar',
+  data: {
+    labels: months,
+    datasets: [
+      { label: 'Ingresos',  data: incomeData,  backgroundColor: 'rgba(46,125,50,.7)',  borderRadius: 5 },
+      { label: 'Gastos',    data: expenseData, backgroundColor: 'rgba(198,40,40,.7)',  borderRadius: 5 },
+    ]
+  },
+  options: { plugins: { legend: { position: 'top' } }, responsive: true, scales: { y: { beginAtZero: true } } }
+});
+
+{% if cat_labels %}
+new Chart(document.getElementById('pieChart'), {
+  type: 'doughnut',
+  data: {
+    labels: {{ cat_labels | tojson }},
+    datasets: [{ data: {{ cat_values | tojson }},
+      backgroundColor: ['#EF5350','#AB47BC','#42A5F5','#26A69A','#FFA726','#66BB6A','#EC407A','#78909C','#FF7043'] }]
+  },
+  options: { plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } }, cutout: '60%' }
+});
+{% endif %}
+</script>
+{% endblock %}
