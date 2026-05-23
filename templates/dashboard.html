@@ -26,20 +26,20 @@
     <div class="card stat-card balance p-3">
       <div class="text-muted small mb-1">Balance total</div>
       <div class="fs-4 fw-bold {% if balance >= 0 %}text-primary{% else %}text-danger{% endif %}">
-        ${{ "{:,.0f}".format(balance) }} CLP
+        {{ balance | money(user_currency) }}
       </div>
     </div>
   </div>
   <div class="col-sm-4">
     <div class="card stat-card income p-3">
       <div class="text-muted small mb-1">Ingresos — {{ month_name }} {{ year }}</div>
-      <div class="fs-4 fw-bold text-success">${{ "{:,.0f}".format(month_income) }} CLP</div>
+      <div class="fs-4 fw-bold text-success">{{ month_income | money(user_currency) }}</div>
     </div>
   </div>
   <div class="col-sm-4">
     <div class="card stat-card expense p-3">
       <div class="text-muted small mb-1">Gastos — {{ month_name }} {{ year }}</div>
-      <div class="fs-4 fw-bold text-danger">${{ "{:,.0f}".format(month_expense) }} CLP</div>
+      <div class="fs-4 fw-bold text-danger">{{ month_expense | money(user_currency) }}</div>
     </div>
   </div>
 </div>
@@ -88,7 +88,7 @@
           <td>{{ t.category }}</td>
           <td class="text-muted small">{{ t.description or "—" }}</td>
           <td class="text-end fw-semibold {% if t.type == 'income' %}text-success{% else %}text-danger{% endif %}">
-            {{ "+" if t.type == "income" else "-" }}${{ "{:,.0f}".format(t.amount) }} CLP
+            {{ "+" if t.type == "income" else "-" }}{{ t.amount | money(user_currency) }}
           </td>
         </tr>
         {% endfor %}

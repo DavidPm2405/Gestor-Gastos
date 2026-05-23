@@ -57,6 +57,24 @@
       <i class="bi bi-file-earmark-excel"></i> Exportar Excel
     </a>
     <hr style="border-color:rgba(255,255,255,.2); margin:.75rem 1.25rem">
+    <!-- Selector de moneda -->
+    <div style="padding:.25rem 1.25rem .5rem">
+      <div style="color:rgba(255,255,255,.5); font-size:.72rem; margin-bottom:.3rem;">
+        <i class="bi bi-currency-exchange"></i> Moneda
+      </div>
+      <form method="POST" action="{{ url_for('change_currency') }}">
+        <select name="currency" class="form-select form-select-sm"
+          style="background:#1e2e9e; color:#fff; border-color:rgba(255,255,255,.2); font-size:.8rem;"
+          onchange="this.form.submit()">
+          {% for code, info in CURRENCIES.items() %}
+            <option value="{{ code }}" {% if code == user_currency %}selected{% endif %}>
+              {{ info.symbol }} {{ code }} — {{ info.name }}
+            </option>
+          {% endfor %}
+        </select>
+      </form>
+    </div>
+    <hr style="border-color:rgba(255,255,255,.2); margin:.75rem 1.25rem">
     <a class="nav-link" href="{{ url_for('logout') }}">
       <i class="bi bi-box-arrow-left"></i> Salir
     </a>

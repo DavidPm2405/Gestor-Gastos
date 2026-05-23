@@ -54,7 +54,7 @@
           <td>{{ t.category }}</td>
           <td class="text-muted small">{{ t.description or "—" }}</td>
           <td class="text-end fw-semibold {% if t.type == 'income' %}text-success{% else %}text-danger{% endif %}">
-            {{ "+" if t.type == "income" else "-" }}${{ "{:,.0f}".format(t.amount) }} CLP
+            {{ "+" if t.type == "income" else "-" }}{{ t.amount | money(user_currency) }}
           </td>
           <td class="text-end">
             <form method="POST" action="{{ url_for('delete_transaction', tx_id=t.id) }}"

@@ -16,7 +16,10 @@
         </div>
         <button class="btn btn-primary w-100">Entrar</button>
       </form>
-      <p class="text-center mt-3 mb-0 text-muted small">
+      <p class="text-center mt-2 mb-0 text-muted small">
+        <a href="{{ url_for('forgot_password') }}">¿Olvidaste tu contraseña?</a>
+      </p>
+      <p class="text-center mt-1 mb-0 text-muted small">
         ¿No tienes cuenta? <a href="{{ url_for('register') }}">Regístrate</a>
       </p>
     </div>
