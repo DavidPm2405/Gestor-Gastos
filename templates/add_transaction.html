@@ -37,8 +37,15 @@
         <div class="mb-3">
           <label class="form-label">Monto</label>
           <div class="input-group">
-            <span class="input-group-text">$ CLP</span>
-            <input type="number" name="amount" class="form-control" step="1" min="1" required placeholder="0">
+            <span class="input-group-text">
+              {{ CURRENCIES[user_currency].symbol }} {{ user_currency }}
+            </span>
+            {% set decimals = CURRENCIES[user_currency].decimals %}
+            <input type="number" name="amount" class="form-control"
+              step="{{ '1' if decimals == 0 else '0.01' }}"
+              min="{{ '1' if decimals == 0 else '0.01' }}"
+              required
+              placeholder="{{ '0' if decimals == 0 else '0.00' }}">
           </div>
         </div>
 
